@@ -1,45 +1,70 @@
 #include <stdio.h>
-#include "pico/stdlib.h" // Biblioteca padrão para funcionalidades básicas como GPIO, temporização e E/S.
-#include "pico/time.h"   // Biblioteca para gerenciamento de tempo, como manipulação de temporizadores e atrasos.
+#include "pico/stdlib.h"
+#include "pico/time.h"
 
-#define LED_PIN_RED 12 //Definição da GPIO de saída
-bool led_on = false;
+// Definição dos pinos dos LEDs
+#define LED_PIN_RED 12
+#define LED_PIN_YELLOW 13
+#define LED_PIN_GREEN 14
+
+// Estado inicial do semáforo
+int estado = 0;
 
 int main() {
-
     stdio_init_all(); // Inicializa a comunicação serial
 
-    // Inicializar o pino GPIO11
+    // Inicializar os pinos GPIO dos LEDs
     gpio_init(LED_PIN_RED);
-    gpio_set_dir(LED_PIN_RED,true);
+    gpio_init(LED_PIN_YELLOW);
+    gpio_init(LED_PIN_GREEN);
 
-    // Define um intervalo de tempo em milissegundos
-    uint32_t interval = 1000;
+    // Configurar os pinos como saída
+    gpio_set_dir(LED_PIN_RED, true);
+    gpio_set_dir(LED_PIN_YELLOW, true);
+    gpio_set_dir(LED_PIN_GREEN, true);
 
-    // Calcula o próximo tempo absoluto em que a ação deve ocorrer.
-    // get_absolute_time() retorna o tempo atual do sistema.
-    // delayed_by_us() calcula um tempo futuro adicionando o intervalo em microsegundos ao tempo atual.
-    absolute_time_t next_wake_time = delayed_by_us(get_absolute_time(), interval * 1000);
+    // Tempo para alternância dos LEDs (3 segundos)
+    uint32_t intervalo_leds = 3000;
 
-    // Loop infinito que mantém o programa em execução contínua.
+    // Tempo para impressão no terminal (1 segundo)
+    uint32_t intervalo_msg = 1000;
+
+    // Definir os tempos futuros
+    absolute_time_t proximo_tempo_leds = delayed_by_us(get_absolute_time(), intervalo_leds * 1000);
+    absolute_time_t proximo_tempo_msg = delayed_by_us(get_absolute_time(), intervalo_msg * 1000);
+
     while (true) {
-        // Verifica se o tempo atual atingiu ou ultrapassou o tempo definido em next_wake_time.
-        if (time_reached(next_wake_time)) {
-
-            // Imprime uma mensagem na saída serial indicando que 1 segundo se passou.
-            printf("1 segundo passou\n");
+        // Verifica se é hora de alternar os LEDs (a cada 3 segundos)
+        if (time_reached(proximo_tempo_leds)) {
+            // Alterna o estado do semáforo
+            if (estado == 0) { // Vermelho
+                gpio_put(LED_PIN_RED, 1);
+                gpio_put(LED_PIN_YELLOW, 0);
+                gpio_put(LED_PIN_GREEN, 0);
+            } else if (estado == 1) { // Amarelo
+                gpio_put(LED_PIN_RED, 0);
+                gpio_put(LED_PIN_YELLOW, 1);
+                gpio_put(LED_PIN_GREEN, 0);
+            } else { // Verde
+                gpio_put(LED_PIN_RED, 0);
+                gpio_put(LED_PIN_YELLOW, 0);
+                gpio_put(LED_PIN_GREEN, 1);
+            }
             
-            //Liga ou desliga o led.
-            led_on = !led_on;
-            gpio_put(LED_PIN_RED,led_on);
+            // Atualiza o estado (ciclo: vermelho -> amarelo -> verde)
+            estado = (estado + 1) % 3;
 
-            // Calcula o próximo tempo de despertar, adicionando o intervalo de 1 segundo ao tempo atual.
-            // Isso garante que a próxima execução aconteça exatamente 1 segundo após a última.
-            next_wake_time = delayed_by_us(next_wake_time, interval * 1000);
+            // Define o próximo tempo para alternância dos LEDs
+            proximo_tempo_leds = delayed_by_us(proximo_tempo_leds, intervalo_leds * 1000);
         }
 
-        // Introduz uma pequena pausa de 1 milissegundo para reduzir o uso da CPU.
-        // Isso evita que o loop rode desnecessariamente rápido, economizando recursos.
+        // Verifica se é hora de imprimir a mensagem (a cada 1 segundo)
+        if (time_reached(proximo_tempo_msg)) {
+            printf("Semáforo funcionando...\n");
+            proximo_tempo_msg = delayed_by_us(proximo_tempo_msg, intervalo_msg * 1000);
+        }
+
+        // Pequena pausa para evitar uso excessivo da CPU
         sleep_ms(1);
     }
 }
