@@ -1,45 +1,92 @@
 #include <stdio.h>
-#include "pico/stdlib.h" // Biblioteca padrão para funcionalidades básicas como GPIO, temporização e E/S.
-#include "pico/time.h"   // Biblioteca para gerenciamento de tempo, como manipulação de temporizadores e atrasos.
+#include "pico/stdlib.h"
+#include "hardware/gpio.h"
+#include "hardware/timer.h"
 
-#define LED_PIN_RED 12 //Definição da GPIO de saída
-bool led_on = false;
+// Definição dos pinos dos LEDs
+#define LED_PIN_RED 13
+#define LED_PIN_GREEN 12
+#define LED_PIN_BLUE 11
+
+// Definição do botão (Pushbutton)
+#define BUTTON_PIN 5
+
+// Estado da execução do temporizador
+bool temporizador_ativo = false;
+
+// Protótipos das funções de callback
+int desligar_led2_callback(alarm_id_t id, void *user_data);
+int desligar_led3_callback(alarm_id_t id, void *user_data);
+
+// Função callback para iniciar a sequência de desligamento
+int desligar_led1_callback(alarm_id_t id, void *user_data) {
+    gpio_put(LED_PIN_RED, 0);
+    printf("LED vermelho desligado!\n");
+    add_alarm_in_ms(3000, desligar_led2_callback, NULL, false);
+    return 0;
+}
+
+// Callback para desligar o segundo LED (azul)
+int desligar_led2_callback(alarm_id_t id, void *user_data) {
+    gpio_put(LED_PIN_BLUE, 0);
+    printf("LED azul desligado!\n");
+    add_alarm_in_ms(3000, desligar_led3_callback, NULL, false);
+    return 0;
+}
+
+// Callback para desligar o terceiro LED (verde) e liberar o botão
+int desligar_led3_callback(alarm_id_t id, void *user_data) {
+    gpio_put(LED_PIN_GREEN, 0);
+    printf("LED verde desligado! Sistema pronto para nova ativação.\n");
+    temporizador_ativo = false; // Libera o botão para nova ativação
+    return 0;
+}
+
+// Função para detectar o pressionamento do botão com debounce
+bool detectar_botao() {
+    if (!gpio_get(BUTTON_PIN)) { // Se o botão for pressionado (nível baixo)
+        sleep_ms(50); // Debounce
+        if (!gpio_get(BUTTON_PIN)) { // Confirma o pressionamento
+            while (!gpio_get(BUTTON_PIN)); // Espera soltar o botão
+            return true;
+        }
+    }
+    return false;
+}
 
 int main() {
-
     stdio_init_all(); // Inicializa a comunicação serial
 
-    // Inicializar o pino GPIO11
+    // Inicializar os pinos GPIO dos LEDs e do botão
+    gpio_init(LED_PIN_BLUE);
     gpio_init(LED_PIN_RED);
-    gpio_set_dir(LED_PIN_RED,true);
+    gpio_init(LED_PIN_GREEN);
+    gpio_init(BUTTON_PIN);
 
-    // Define um intervalo de tempo em milissegundos
-    uint32_t interval = 1000;
+    // Configurar os pinos como saída (LEDs) e entrada (Botão)
+    gpio_set_dir(LED_PIN_BLUE, true);
+    gpio_set_dir(LED_PIN_RED, true);
+    gpio_set_dir(LED_PIN_GREEN, true);
+    gpio_set_dir(BUTTON_PIN, false);
+    gpio_pull_up(BUTTON_PIN); // Habilita pull-up interno no botão
 
-    // Calcula o próximo tempo absoluto em que a ação deve ocorrer.
-    // get_absolute_time() retorna o tempo atual do sistema.
-    // delayed_by_us() calcula um tempo futuro adicionando o intervalo em microsegundos ao tempo atual.
-    absolute_time_t next_wake_time = delayed_by_us(get_absolute_time(), interval * 1000);
+    printf("Sistema pronto. Pressione o botão para iniciar.\n");
 
-    // Loop infinito que mantém o programa em execução contínua.
     while (true) {
-        // Verifica se o tempo atual atingiu ou ultrapassou o tempo definido em next_wake_time.
-        if (time_reached(next_wake_time)) {
+        if (!temporizador_ativo && detectar_botao()) { // Se o botão for pressionado e o sistema estiver pronto
+            printf("Botão pressionado! LEDs ligados.\n");
 
-            // Imprime uma mensagem na saída serial indicando que 1 segundo se passou.
-            printf("1 segundo passou\n");
-            
-            //Liga ou desliga o led.
-            led_on = !led_on;
-            gpio_put(LED_PIN_RED,led_on);
+            // Liga os 3 LEDs
+            gpio_put(LED_PIN_BLUE, 1);
+            gpio_put(LED_PIN_RED, 1);
+            gpio_put(LED_PIN_GREEN, 1);
 
-            // Calcula o próximo tempo de despertar, adicionando o intervalo de 1 segundo ao tempo atual.
-            // Isso garante que a próxima execução aconteça exatamente 1 segundo após a última.
-            next_wake_time = delayed_by_us(next_wake_time, interval * 1000);
+            // Bloqueia novas ativações até o ciclo terminar
+            temporizador_ativo = true;
+
+            // Inicia o temporizador para desligamento
+            add_alarm_in_ms(3000, desligar_led1_callback, NULL, false);
         }
-
-        // Introduz uma pequena pausa de 1 milissegundo para reduzir o uso da CPU.
-        // Isso evita que o loop rode desnecessariamente rápido, economizando recursos.
-        sleep_ms(1);
+        sleep_ms(10); // Pequena pausa para evitar alto uso da CPU
     }
 }
