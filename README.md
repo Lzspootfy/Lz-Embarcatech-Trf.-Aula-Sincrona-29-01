@@ -10,7 +10,7 @@ Acende o amarelo → espera 3 segundos
 Acende o verde → espera 3 segundos
 Repete tudo de novo...
 
-#Como funciona o código?
+Como funciona o código?
 
 O código usa um loop while(true) para rodar continuamente.
 Um temporizador controla os intervalos, definindo quando mudar de estado.
