@@ -7,7 +7,7 @@ Ele sempre segue essa linha:
 
 Acende o vermelho → espera 3 segundos
 Acende o amarelo → espera 3 segundos
-Acende o verde → espera 3 segundos
+Acende o verde → espera 3 segundos → 
 Repete tudo de novo...
 
 Como funciona o código?
