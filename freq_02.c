@@ -3,9 +3,9 @@
 #include "pico/time.h"
 
 // Definição dos pinos dos LEDs
-#define LED_PIN_RED 12
-#define LED_PIN_YELLOW 13
-#define LED_PIN_GREEN 14
+#define LED_PIN_RED 13
+#define LED_PIN_YELLOW 11
+#define LED_PIN_GREEN 12
 
 // Estado inicial do semáforo
 int estado = 0;
