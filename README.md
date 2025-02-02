@@ -3,7 +3,6 @@
 🔴🟡🟢 Semáforo Periódico **Cíclico**
 O que é?
 O semáforo periódico funciona em loop infinito, alternando entre os estados (cores) em intervalos regulares de tempo.
-
 Ele sempre segue essa linha:
 
 Acende o vermelho → espera 3 segundos
