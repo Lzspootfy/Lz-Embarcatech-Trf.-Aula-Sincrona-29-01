@@ -17,10 +17,10 @@ Um temporizador controla os intervalos, definindo quando mudar de estado.
 A função **time_reached()** verifica se chegou a hora de trocar o LED.
 A cada troca de LED, a variável **estado** é atualizada para controlar a sequência.
 
-!Pontos Importantes!
-✅ Sempre executa automaticamente, sem precisar de interação do usuário.
-✅ Usa um temporizador de repetição **(repeating_timer_callback())**.
-✅ Ideal para simular um semáforo real que muda o sinal de forma automática.
+!Pontos Importantes!                                                                                                                                                                                                    
+✅ Sempre executa automaticamente, sem precisar de interação do usuário.                                                                                                                                    
+✅ Usa um temporizador de repetição **(repeating_timer_callback())**.                                                                                                                                       
+✅ Ideal para simular um semáforo real que muda o sinal de forma automática.                                                                                                                                
 
 
 
