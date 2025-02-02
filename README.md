@@ -1,6 +1,7 @@
 # 🛠️ Instruções e Explicações sobre os Semáforos "One Shot" e "Periódico" 🛠️
 
 🔴🟡🟢 Semáforo Periódico **Cíclico**
+
 O que é?                                                                                                                                                                                                     
 O semáforo periódico funciona em loop infinito, alternando entre os estados (cores) em intervalos regulares de tempo.                                                                                          
 Ele sempre segue essa linha:
@@ -24,7 +25,17 @@ A cada troca de LED, a variável **estado** é atualizada para controlar a sequ�
 
 🔴🟡🟢 2️⃣ Semáforo "One Shot" (Disparo Único)
                                                                                                                             
+O que é?                                                                                                                                                                                                     
+O semáforo "One Shot" só inicia quando o botão for pressionado.                                                                                                                                              
 
+Ele segue essa lógica:                                                                                                                                                                                       
+
+O usuário aperta o botão                                                                                                                                                                                     
+Todos os LEDs ligam → espera 3 segundos                                                                                                                                                                      
+Desliga um LED → espera 3 segundos                                                                                                                                                                           
+Desliga mais um LED → espera 3 segundos                                                                                                                                                                      
+Desliga o último LED                                                                                                                                                                                         
+O botão só pode ser pressionado de novo depois que tudo foi desligado.                                                                                                                                       
 
 
 
