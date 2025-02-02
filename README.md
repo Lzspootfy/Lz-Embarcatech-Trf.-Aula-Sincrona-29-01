@@ -1,7 +1,7 @@
 # 🛠️ Instruções e Explicações sobre os Semáforos "One Shot" e "Periódico" 🛠️
 
 🔴🟡🟢 Semáforo Periódico **Cíclico**
-O que é?
+O que é?                                                                                                                                                                                                     
 O semáforo periódico funciona em loop infinito, alternando entre os estados (cores) em intervalos regulares de tempo.                                                                                          
 Ele sempre segue essa linha:
 
