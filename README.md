@@ -20,7 +20,10 @@ A cada troca de LED, a variável **estado** é atualizada para controlar a sequ�
 !Pontos Importantes!                                                                                                                                                                                                    
 ✅ Sempre executa automaticamente, sem precisar de interação do usuário.                                                                                                                                    
 ✅ Usa um temporizador de repetição **(repeating_timer_callback())**.                                                                                                                                       
-✅ Ideal para simular um semáforo real que muda o sinal de forma automática.                                                                                                                                
+✅ Ideal para simular um semáforo real que muda o sinal de forma automática.    
+
+🔴🟡🟢 2️⃣ Semáforo "One Shot" (Disparo Único)
+                                                                                                                            
 
 
 
